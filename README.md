@@ -44,6 +44,57 @@ sudo systemctl status redis-server
 pip install -r requirements.txt
 ```
 
+### Fedora/RHEL
+
+1. Установите Redis:
+```bash
+sudo dnf install redis
+```
+
+2. Проверьте статус Redis:
+```bash
+sudo systemctl status redis
+```
+
+3. Установите зависимости:
+```bash
+pip install -r requirements.txt
+```
+
+## Дополнительные зависимости
+
+Для полноценной работы сервиса необходимо установить следующие дополнительные компоненты:
+
+### Языковые модели spaCy
+
+```bash
+# Для английского языка
+python -m spacy download en_core_web_sm
+
+# Для русского языка
+python -m spacy download ru_core_news_sm
+```
+
+### Поддержка загрузки файлов
+
+```bash
+pip install python-multipart
+```
+
+### Совместимость Pydantic и spaCy
+
+Важно! В проекте используется spaCy, который работает с Pydantic v1. Если у вас установлен Pydantic v2, необходимо откатиться к более ранней версии:
+
+```bash
+pip install "pydantic<2.0.0"
+```
+
+### Создание директорий для хранения данных
+
+```bash
+mkdir -p text_data/raw text_data/processed
+```
+
 ## Запуск
 
 ### Windows
@@ -82,6 +133,23 @@ celery -A main.celery_app worker --loglevel=info
 uvicorn main:app --reload
 ```
 
+### Альтернативный запуск (без uvicorn)
+
+Вы также можете запустить приложение напрямую из Python:
+
+```bash
+python main.py
+```
+
+## Проверка работоспособности
+
+После запуска сервиса, вы можете проверить его работоспособность, перейдя по следующим URL:
+
+- API документация: http://localhost:8000/docs
+- Проверка здоровья: http://localhost:8000/health
+- Список доступных процессоров: http://localhost:8000/processors
+- Статистика хранилища: http://localhost:8000/storage/stats
+
 ## Юниттестирование
 ```bash
 python test_api.py
@@ -107,13 +175,29 @@ python test_api.py
    ```json
    {
        "text_id": "text_123",
-       "processing_type": "test_processing",
+       "processing_type": "tokenize",
        "parameters": {
-           "option1": "value1",
-           "option2": "value2"
+           "method": "spacy",
+           "language": "ru",
+           "return_pos": true,
+           "return_entities": true
        }
    }
    ```
+
+4. **Добавление текста напрямую**
+   - Метод: `POST`
+   - URL: `http://localhost:8000/text`
+   - Body: raw (JSON)
+   ```json
+   {
+       "text": "Это тестовый текст для обработки в нашем сервисе."
+   }
+   ```
+
+5. **Получение статистики хранилища**
+   - Метод: `GET`
+   - URL: `http://localhost:8000/storage/stats`
 
 ## Мониторинг
 
@@ -121,7 +205,21 @@ python test_api.py
 - Логи приложения выводятся в консоль
 - Логи Celery worker'а выводятся в отдельное окно консоли
 
-## Возможные проблемы
+## Диагностика ошибок при запуске
+
+### Общие проблемы
+
+1. **Ошибка ModuleNotFoundError**:
+   - Убедитесь, что все зависимости установлены: `pip install -r requirements.txt`
+   - Дополнительно проверьте необходимость установки python-multipart: `pip install python-multipart`
+
+2. **Ошибки с языковыми моделями spaCy**:
+   - Убедитесь, что модели установлены: `python -m spacy download en_core_web_sm ru_core_news_sm`
+   - Если проблемы с совместимостью, используйте Pydantic v1: `pip install "pydantic<2.0.0"`
+
+3. **Ошибки доступа к директориям**:
+   - Создайте директории для хранения: `mkdir -p text_data/raw text_data/processed`
+   - Проверьте права доступа к этим директориям
 
 ### Windows
 

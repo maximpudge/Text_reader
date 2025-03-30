@@ -7,6 +7,8 @@ from .processors import (
     LemmatizerProcessor
 )
 
+from .paraphraser import ParaphraserProcessor 
+
 logger = logging.getLogger(__name__)
 
 class TextProcessorFactory:
@@ -16,6 +18,7 @@ class TextProcessorFactory:
     _processors: Dict[str, Type[TextProcessor]] = {
         "tokenize": TokenizerProcessor,
         "lemmatize": LemmatizerProcessor,
+        "paraphrase": ParaphraserProcessor,
     }
     
     _instances: Dict[str, TextProcessor] = {}
@@ -54,6 +57,7 @@ class TextProcessorFactory:
         return {
             "tokenize": "Токенизация текста (разбиение на слова и предложения)",
             "lemmatize": "Лемматизация текста (приведение слов к начальной форме)",
+            "paraphrase": "Перефразирование текста (изменение стиля и структуры с сохранением смысла)"
         }
     
     @classmethod
@@ -72,3 +76,5 @@ class TextProcessorFactory:
         # Удаляем экземпляр, если он был создан ранее
         if processor_type in cls._instances:
             del cls._instances[processor_type] 
+            
+            

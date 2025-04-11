@@ -1,0 +1,10 @@
+.header {
+	padding: 16px 0 16px 68px;
+	background-color: black;
+	width: auto;
+}
+
+.text {
+	color: white;
+	text-align: start;
+}

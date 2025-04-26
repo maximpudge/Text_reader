@@ -2,6 +2,8 @@ import { create, StateCreator } from 'zustand';
 
 type TextState = {
 	text: string;
+	resultData: any;
+	status?: 'pending' | 'loading' | 'completed';
 	language?: 'ru' | 'en';
 	processorType?: 'tokenize' | 'lemmatize' | 'paraphrase';
 	methods?: 'spacy' | 'nltk' | 'simple';
@@ -13,6 +15,8 @@ type TextState = {
 
 type TextActions = {
 	setText: (text: string) => void;
+	setResultData: (resultData: any) => void;
+	setStatus: (status: 'pending' | 'loading' | 'completed') => void;
 	setLanguage: (text: 'ru' | 'en') => void;
 	setProcessorType: (text: 'tokenize' | 'lemmatize' | 'paraphrase') => void;
 	setMethods: (text: 'spacy' | 'nltk' | 'simple') => void;
@@ -27,6 +31,7 @@ type TextActions = {
 };
 
 const textSlice: StateCreator<TextState & TextActions> = set => ({
+	resultData: null,
 	text: '',
 	language: 'ru',
 	processorType: 'tokenize',
@@ -37,6 +42,12 @@ const textSlice: StateCreator<TextState & TextActions> = set => ({
 	return_original: false,
 	setText: (text: string) => {
 		set({ text });
+	},
+	setStatus: (status: 'pending' | 'loading' | 'completed') => {
+		set({ status });
+	},
+	setResultData: (resultData: any) => {
+		set({ resultData });
 	},
 	setLanguage: (text: 'ru' | 'en') => {
 		set({ language: text });

@@ -1,10 +1,45 @@
 import { ChangeEvent } from 'react';
 import styles from './TextTool.module.css';
 import { useTextStore } from '../../model/textStore';
+import axios from 'axios';
 
 const PROCESSOR_TYPES = ['tokenize', 'lemmatize', 'paraphrase'];
 const METHODS = ['spacy', 'nltk', 'simple'];
 const LANGUAGES = ['ru', 'en'];
+
+interface TextResponse {
+	status: 'success' | 'failed';
+	text_id: string;
+}
+
+interface ProcessRequest {
+	text_id: string;
+	processing_type: string;
+	parameters: {
+		method: string;
+		language: string;
+		return_pos: boolean;
+		return_entities: boolean;
+		return_mapping: boolean;
+		return_original: boolean;
+	};
+}
+
+interface TaskStatus {
+	status: string;
+	result?: {
+		text_id: string;
+		processing_type: string;
+	};
+}
+
+interface ProcessingResults {
+	[key: string]: any;
+}
+
+const sleep = (ms: number): Promise<void> => {
+	return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 const TextTool = () => {
 	const {
@@ -21,6 +56,9 @@ const TextTool = () => {
 		return_mapping,
 		return_original,
 		setChecked,
+		setResultData,
+		status,
+		setStatus,
 	} = useTextStore();
 
 	const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -46,17 +84,68 @@ const TextTool = () => {
 		}
 	};
 
-	const handleProceed = () => {
-		console.log('Proceeding with text:', text);
-		console.dir({
-			language,
-			methods,
-			processorType,
-			return_entities,
-			return_mapping,
-			return_original,
-			return_pos
-		})
+	const handleProceed = async (): Promise<void> => {
+		try {
+			setResultData(null)
+			setStatus('pending');
+			setStatus('loading');
+			const { data }: { data: TextResponse } = await axios.post(
+				'http://localhost:8000/text',
+				{ text }
+			);
+
+			if (data.status === 'success') {
+				const processData: ProcessRequest = {
+					text_id: data.text_id,
+					processing_type: processorType as
+						| 'tokenize'
+						| 'lemmatize'
+						| 'paraphrase',
+					parameters: {
+						method: methods as 'spacy' | 'nltk' | 'simple',
+						language: language as 'ru' | 'en',
+						return_pos: return_pos,
+						return_entities: return_entities,
+						return_mapping: return_mapping,
+						return_original: return_original,
+					},
+				};
+
+				const { data: processTextData } = await axios.post<{ task_id: string }>(
+					'http://localhost:8000/process',
+					processData
+				);
+
+				await sleep(3000);
+
+				const { data: taskStatus } = await axios.get<TaskStatus>(
+					`http://localhost:8000/task/${processTextData.task_id}`
+				);
+
+				if (taskStatus.status === 'completed') {
+					const { data: result } = await axios.get<ProcessingResults>(
+						`http://localhost:8000/text/${taskStatus.result.text_id}/result/${taskStatus.result.processing_type}`
+					);
+
+					setStatus('completed');
+					setResultData(result);
+				}
+			}
+
+			console.log('Proceeding with text:', text);
+			console.dir({
+				language,
+				methods,
+				processorType,
+				return_entities,
+				return_mapping,
+				return_original,
+				return_pos,
+			});
+		} catch (error) {
+			console.error('Error in handleProceed:', error);
+			throw error;
+		}
 	};
 
 	return (
@@ -179,9 +268,15 @@ const TextTool = () => {
 						onChange={handleFileUpload}
 					/>
 				</label>
-				<button className={styles.proceed_button} onClick={handleProceed}>
-					Обработка
-				</button>
+				{status === 'pending' || status === 'loading' ? (
+					<button className={styles.loading_button} disabled={true}>
+						Загрузка...
+					</button>
+				) : (
+					<button className={styles.proceed_button} onClick={handleProceed}>
+						Обработка
+					</button>
+				)}
 			</div>
 		</div>
 	);

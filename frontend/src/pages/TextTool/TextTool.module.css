@@ -66,6 +66,16 @@
   background-color: #e0e0e0;
 }
 
+.loading_button {
+  background-color: #b3bab4;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
 .proceed_button {
   background-color: #4CAF50;
   color: white;

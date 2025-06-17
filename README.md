@@ -250,3 +250,8 @@ python test_api.py
    - Проверьте права доступа к директории проекта
    - Убедитесь, что Redis запущен и доступен
    - Проверьте логи: `tail -f /var/log/celery/worker.log` 
+
+# Docker 
+
+## Запуск
+docker-compose -f docker_setup.yaml down

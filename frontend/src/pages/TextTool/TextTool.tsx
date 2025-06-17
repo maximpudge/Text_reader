@@ -122,14 +122,17 @@ const TextTool = () => {
 					`http://localhost:8000/task/${processTextData.task_id}`
 				);
 
-				if (taskStatus.status === 'completed') {
+				if (taskStatus.status === 'completed' && taskStatus.result) {
+					const { text_id, processing_type } = taskStatus.result;
+
 					const { data: result } = await axios.get<ProcessingResults>(
-						`http://localhost:8000/text/${taskStatus.result.text_id}/result/${taskStatus.result.processing_type}`
+						`http://localhost:8000/text/${text_id}/result/${processing_type}`
 					);
 
 					setStatus('completed');
 					setResultData(result);
-				}
+					}
+
 			}
 
 			console.log('Proceeding with text:', text);
@@ -166,7 +169,7 @@ const TextTool = () => {
 				<select
 					name='languages'
 					id='languages'
-					onChange={e => setLanguage(e.target.value)}
+					onChange={e => setLanguage(e.target.value as 'ru' | 'en')}
 				>
 					{LANGUAGES.length &&
 						LANGUAGES.map(item => (
@@ -184,7 +187,7 @@ const TextTool = () => {
 				<select
 					name='tokenizator'
 					id='tokenizator'
-					onChange={e => setProcessorType(e.target.value)}
+					onChange={e => setProcessorType(e.target.value as 'tokenize' | 'lemmatize' | 'paraphrase')}
 				>
 					{PROCESSOR_TYPES.length &&
 						PROCESSOR_TYPES.map(item => (
@@ -202,7 +205,7 @@ const TextTool = () => {
 				<select
 					name='methods'
 					id='methods'
-					onChange={e => setMethods(e.target.value)}
+					onChange={e => setMethods(e.target.value as 'spacy' | 'nltk' | 'simple')}
 				>
 					{METHODS.length &&
 						METHODS.map(item => (

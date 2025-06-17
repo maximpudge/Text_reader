@@ -4,7 +4,7 @@ import logging
 import uuid
 import shutil
 import time
-from typing import Dict, Any, Optional, List, Union, BinaryIO
+from typing import Dict, Any, Optional, List
 from threading import Lock
 from contextlib import contextmanager
 

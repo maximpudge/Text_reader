@@ -8,6 +8,7 @@ from .processors import (
 )
 
 from .paraphraser import ParaphraserProcessor 
+from .summarizer import SummarizerProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ class TextProcessorFactory:
         "tokenize": TokenizerProcessor,
         "lemmatize": LemmatizerProcessor,
         "paraphrase": ParaphraserProcessor,
+        "summarize": SummarizerProcessor
     }
     
     _instances: Dict[str, TextProcessor] = {}

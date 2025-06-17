@@ -36,6 +36,7 @@ logs/
 
 # Локальные файлы
 *.db
+*.rdb
 *.sqlite3
 test.txt
 

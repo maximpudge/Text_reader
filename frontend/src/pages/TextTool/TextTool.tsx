@@ -116,7 +116,7 @@ const TextTool = () => {
 					processData
 				);
 
-				await sleep(3000);
+				await sleep(6000);
 
 				const { data: taskStatus } = await axios.get<TaskStatus>(
 					`http://localhost:8000/task/${processTextData.task_id}`

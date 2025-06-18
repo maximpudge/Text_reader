@@ -254,4 +254,4 @@ python test_api.py
 # Docker 
 
 ## Запуск
-docker-compose -f docker_setup.yaml up --build
+docker compose up --build
